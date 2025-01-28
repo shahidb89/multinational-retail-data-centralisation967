@@ -6,11 +6,11 @@ class DataCleaning:
         user_df = dtex.user_df
         user_df.set_index("index", inplace=True)
         user_df.replace(['NULL'], np.nan, inplace=True)
-        user_df["join_date"] = pd.to_datetime(user_df["join_date"],
+        user_df["join_date"] = pd.to_datetime(user_df["join_date"], format='mixed',
                                                errors='coerce')
-        user_df = user_df.dropna()
+        user_df = user_df.dropna().reset_index(drop=True)
         return user_df
 
 if __name__ == "__main__":
     df = DataCleaning.clean_user_data()
-    print(df)
+    print(df.info())
