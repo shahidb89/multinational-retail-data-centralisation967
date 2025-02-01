@@ -85,13 +85,24 @@ class DataCleaning:
         orders_df = dtex.orders_df
         orders_df= orders_df.drop(columns=['first_name', 'last_name', '1'])
         return orders_df
-
+    
+    def clean_events_data():
+        events_df = dtex.events_df
+        events_df.replace(['NULL'], np.nan, inplace=True)
+        events_df['day'] = pd.to_numeric(events_df['day'], errors='coerce')
+        events_df['month'] = pd.to_numeric(events_df['month'], errors='coerce')
+        events_df['year'] = pd.to_numeric(events_df['year'], errors='coerce')
+        events_df = events_df.dropna().reset_index(drop=True)
+        return events_df
     
 
-# cleaned_user_data = DataCleaning.clean_user_data()
-# cleaned_card_data = DataCleaning.clean_card_data()
-# cleaned_stores_data = DataCleaning.clean_store_data()
+cleaned_user_data = DataCleaning.clean_user_data()
+cleaned_card_data = DataCleaning.clean_card_data()
+cleaned_stores_data = DataCleaning.clean_store_data()
+cleaned_products_data = DataCleaning.clean_products_data()
+cleaned_orders_data = DataCleaning.clean_orders_data()
+cleaned_events_data = DataCleaning.clean_events_data()
         
 if __name__ == "__main__":
-    df = DataCleaning.clean_orders_data()
+    df = DataCleaning.clean_events_data()
     print(df.info())
