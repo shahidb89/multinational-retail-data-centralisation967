@@ -81,6 +81,10 @@ class DataCleaning:
         products_df = products_df.dropna().reset_index(drop=True)
         return products_df
 
+    def clean_orders_data():
+        orders_df = dtex.orders_df
+        orders_df= orders_df.drop(columns=['first_name', 'last_name', '1'])
+        return orders_df
 
     
 
@@ -89,5 +93,5 @@ class DataCleaning:
 # cleaned_stores_data = DataCleaning.clean_store_data()
         
 if __name__ == "__main__":
-    df = DataCleaning.clean_products_data()
+    df = DataCleaning.clean_orders_data()
     print(df.info())
