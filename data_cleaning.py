@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import re
 import data_extraction as dtex
 class DataCleaning:
     def clean_user_data():
@@ -34,10 +35,52 @@ class DataCleaning:
         
         return stores_df
     
+    def convert_product_weights():
+        products_df = dtex.products_df
+        weights_list = list(products_df['weight'])
+        gram_to_kg = 0.001
+        oz_to_kg = 0.0283495
+        ml_to_kg = 0.001
+
+        converted_weights = []
+
+        for item in weights_list:
+            match = re.match(r'([\d\s.x]+)([a-zA-Z]+)', str(item))  # Extract numbers and units
+            if match:
+                num_part = match.group(1).strip()
+                unit_part = match.group(2).strip()
+
+                # If there is a multiplication (like 12 x 5g), calculate the total weight
+                if 'x' in num_part:
+                    num_part = eval(num_part.replace('x', '*'))  # Calculate multiplications
+                num_part = float(num_part)
+                # Convert to kilograms based on the unit
+                if unit_part == 'g':
+                    num_part *= gram_to_kg  # Convert grams to kilograms
+                elif unit_part == 'oz':
+                    num_part *= oz_to_kg  # Convert ounces to kilograms
+                elif unit_part == 'ml':
+                    num_part *= ml_to_kg  # Convert milliliters to kilograms
+                elif unit_part == 'kg':
+                    pass  # Already in kg, no conversion needed
+                else:
+                    num_part = "NaN"  # Set to NaN for unknown units    
+                if num_part == "NaN":
+                    converted_weights.append("NaN")
+                # Round the number to two decimal places and append to the list
+                else:
+                    converted_weights.append(f"{round(float(num_part), 2)}kg")
+            else:
+                converted_weights.append("NaN")
+        products_df['weight'] = converted_weights
+        return products_df
+
+    
 
 # cleaned_user_data = DataCleaning.clean_user_data()
 # cleaned_card_data = DataCleaning.clean_card_data()
+# cleaned_stores_data = DataCleaning.clean_store_data()
         
 if __name__ == "__main__":
-    df = DataCleaning.clean_store_data()
+    df = DataCleaning.convert_product_weights()
     print(df.info())
