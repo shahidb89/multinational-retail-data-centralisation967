@@ -74,6 +74,13 @@ class DataCleaning:
                 converted_weights.append("NaN")
         products_df['weight'] = converted_weights
         return products_df
+    
+    def clean_products_data():
+        products_df = DataCleaning.convert_product_weights()
+        products_df.replace(['NULL', 'NaN'], np.nan, inplace=True)
+        products_df = products_df.dropna().reset_index(drop=True)
+        return products_df
+
 
     
 
@@ -82,5 +89,5 @@ class DataCleaning:
 # cleaned_stores_data = DataCleaning.clean_store_data()
         
 if __name__ == "__main__":
-    df = DataCleaning.convert_product_weights()
+    df = DataCleaning.clean_products_data()
     print(df.info())
