@@ -3,12 +3,20 @@ import pandas as pd
 from sqlalchemy import inspect
 from tabula import read_pdf
 import requests
+import boto3
+import botocore 
+from botocore import UNSIGNED 
+from botocore.config import Config 
+import os 
+
 class DataExtractor:
     def list_rds_tables():
         engine = dbut.DatabaseConnector.init_db_engine()
         inspector = inspect(engine)
         tables = inspector.get_table_names()
         return tables
+    
+    # tables = ['legacy_store_details', 'dim_card_details', 'legacy_users', 'orders_table']
     
     def read_rds_table(table):
         engine = dbut.DatabaseConnector.init_db_engine()
@@ -46,14 +54,36 @@ class DataExtractor:
         return stores_df
 
 
+    def extract_from_s3(bucket_name, object_key, local_file_path):
+        s3 = boto3.client('s3', config=Config(signature_version=UNSIGNED))
+        s3.download_file(bucket_name, object_key, local_file_path)
+        file_extension = os.path.splitext(local_file_path)[1].lower()  # Extract file extension
+        if file_extension == '.csv':
+            df = pd.read_csv(local_file_path)
+        elif file_extension == '.json':
+            df = pd.read_json(local_file_path)
+        else:
+            raise ValueError("File type not supported. Please provide a CSV or JSON file.")
+        return df
+    
+    
+
 user_df = DataExtractor.read_rds_table("legacy_users")
 card_df = DataExtractor.retrieve_pdf_data()
 stores_df = DataExtractor.retrieve_sotores_data()
-# tables = DataExtractor.list_rds_tables()
+products_df = DataExtractor.extract_from_s3('data-handling-public','products.csv', 
+                         '/Users/admin/AiCore/multinational-retail-data/products.csv')
+orders_df = DataExtractor.read_rds_table('orders_table')
+events_df = DataExtractor.extract_from_s3('data-handling-public','date_details.json', 
+                         '/Users/admin/AiCore/multinational-retail-data/date_details.json')
 
-# for t in tables:
-#     print (t)
 
 if __name__ == "__main__":
     
-    print(stores_df)
+    # user_df = DataExtractor.read_rds_table("legacy_users")
+    # card_df = DataExtractor.retrieve_pdf_data()
+    # stores_df = DataExtractor.retrieve_sotores_data()
+    # products_df = DataExtractor.extract_from_s3()
+
+    print (DataExtractor.extract_from_s3('data-handling-public','date_details.json', 
+                         '/Users/admin/AiCore/multinational-retail-data/date_details.json').info())
