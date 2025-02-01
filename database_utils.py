@@ -1,4 +1,4 @@
-import data_cleaning
+
 import yaml
 from sqlalchemy import create_engine
 
@@ -22,6 +22,7 @@ class DatabaseConnector:
         engine.connect()
         return engine
     
+
     def write_db_creds():
         with open ('sales_db_creds.yaml', 'r') as db:
             db_creds_dict = yaml.load(db,Loader=yaml.SafeLoader)
@@ -42,8 +43,22 @@ class DatabaseConnector:
     def upload_to_db(df_name, table_name):
         engine = DatabaseConnector.write_db_engine()
         df_name.to_sql(table_name, con=engine, if_exists='replace', index=False)
-        print(f'{df_name} uploaded to sales_data database successfully.')
+        print(f'{table_name} uploaded to sales_data database successfully.')
     
+import data_cleaning
+
+
+
+
 if __name__ == '__main__':
-    user_df = data_cleaning.DataCleaning.clean_user_data()
-    DatabaseConnector.upload_to_db(user_df, 'dim_users')
+    
+    DatabaseConnector.upload_to_db(data_cleaning.cleaned_user_data, 'dim_users')
+    DatabaseConnector.upload_to_db(data_cleaning.cleaned_card_data, 'dim_card_details')
+    DatabaseConnector.upload_to_db(data_cleaning.cleaned_stores_data, 'dim_store_details')
+    DatabaseConnector.upload_to_db(data_cleaning.cleaned_products_data, 'dim_products')
+    DatabaseConnector.upload_to_db(data_cleaning.cleaned_orders_data, 'order_table')
+    DatabaseConnector.upload_to_db(data_cleaning.cleaned_events_data, 'dim_date_times')
+
+
+    
+
