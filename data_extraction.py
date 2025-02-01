@@ -64,6 +64,7 @@ class DataExtractor:
             df = pd.read_json(local_file_path)
         else:
             raise ValueError("File type not supported. Please provide a CSV or JSON file.")
+        os.remove(local_file_path)
         return df
     
     
@@ -78,12 +79,5 @@ events_df = DataExtractor.extract_from_s3('data-handling-public','date_details.j
                          '/Users/admin/AiCore/multinational-retail-data/date_details.json')
 
 
-if __name__ == "__main__":
     
-    # user_df = DataExtractor.read_rds_table("legacy_users")
-    # card_df = DataExtractor.retrieve_pdf_data()
-    # stores_df = DataExtractor.retrieve_sotores_data()
-    # products_df = DataExtractor.extract_from_s3()
-
-    print (DataExtractor.extract_from_s3('data-handling-public','date_details.json', 
-                         '/Users/admin/AiCore/multinational-retail-data/date_details.json').info())
+   

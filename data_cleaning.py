@@ -103,6 +103,4 @@ cleaned_products_data = DataCleaning.clean_products_data()
 cleaned_orders_data = DataCleaning.clean_orders_data()
 cleaned_events_data = DataCleaning.clean_events_data()
         
-if __name__ == "__main__":
-    df = DataCleaning.clean_events_data()
-    print(df.info())
+
