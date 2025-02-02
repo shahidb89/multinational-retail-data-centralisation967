@@ -1,6 +1,7 @@
 
 import yaml
 from sqlalchemy import create_engine
+import psycopg2
 
 class DatabaseConnector:
     def read_db_creds():
@@ -43,15 +44,42 @@ class DatabaseConnector:
     def upload_to_db(df_name, table_name):
         engine = DatabaseConnector.write_db_engine()
         df_name.to_sql(table_name, con=engine, if_exists='replace', index=False)
-        print(f'{table_name} uploaded to sales_data database successfully.')
+        print(f'{table_name} table uploaded to sales_data database successfully.')
     
-import data_cleaning
+    def write_db_connector():
+        db_creds_dict = DatabaseConnector.write_db_creds()
+        conn = psycopg2.connect(
+                dbname = db_creds_dict['DATABASE'],
+                user =  db_creds_dict['USER'],
+                password = db_creds_dict['PASSWORD'],
+                host = db_creds_dict['HOST'],
+                port = db_creds_dict['PORT']
+                )  
+
+        return conn 
+    
+    def execute_sql(query):
+        try:
+            conn = DatabaseConnector.write_db_connector()
+            cursor = conn.cursor()
+            cursor.execute(query)
+            if query.strip().upper().startswith(("INSERT", "UPDATE", "DELETE", "ALTER")):
+                conn.commit()
+            print ("Query executed successfully!")
+
+        except Exception as e:
+            print("Error:", e)
+            conn.rollback()
+        
+        finally:
+            cursor.close()
+            conn.close()
 
 
 
 
 if __name__ == '__main__':
-    
+    import data_cleaning
     DatabaseConnector.upload_to_db(data_cleaning.cleaned_user_data, 'dim_users')
     DatabaseConnector.upload_to_db(data_cleaning.cleaned_card_data, 'dim_card_details')
     DatabaseConnector.upload_to_db(data_cleaning.cleaned_stores_data, 'dim_store_details')
