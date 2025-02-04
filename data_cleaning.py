@@ -26,14 +26,18 @@ class DataCleaning:
     
     def clean_store_data():
         stores_df = dtex.stores_df
+        stores_df= stores_df.drop(columns=['lat'])
+        #To keep WEB store row, we have to manually remove None value in latitude column
+        stores_df.iloc[0] =[0,'','','','WEB-1388012W','325','2010-06-12 00:00:00','Web Portal','','GB','Europe']
         stores_df["opening_date"] = pd.to_datetime(stores_df["opening_date"], 
                                                    format='mixed', errors='coerce')
-        #To keep WEB store row, we have to manually remove None value in latitude column
-        stores_df.loc[stores_df['index'] == 0 , 'latitude'] = 'N/A'
+        stores_df.loc[stores_df['index'] == 0 , 'latitude'] = ''
         stores_df.replace(['NULL'], np.nan, inplace=True)
         stores_df['staff_numbers'] = stores_df['staff_numbers'].str.replace(r'[^0-9]', '', regex=True)
-        stores_df= stores_df.drop(columns=['lat'])
+        
         stores_df = stores_df.dropna().reset_index(drop=True)
+        #Avoid empty string in numeric columns before uploading to sales_data database
+        stores_df.replace("", pd.NA, inplace=True)
         
         return stores_df
     
@@ -106,4 +110,4 @@ cleaned_orders_data = DataCleaning.clean_orders_data()
 cleaned_events_data = DataCleaning.clean_events_data()
         
 if __name__ == '__main__':
-    print (DataCleaning.clean_card_data().info())
+    print (DataCleaning.clean_store_data().info())

@@ -18,6 +18,7 @@ ALTER TABLE dim_users
 	ALTER COLUMN join_date TYPE DATE;
 ------------------------------------------------------------------------
 --Altering data types of some columns in dim_sroe_details.
+
 ALTER TABLE dim_store_details
 	ALTER COLUMN longitude TYPE NUMERIC USING longitude::numeric,
 	ALTER COLUMN locality TYPE VARCHAR(255),
@@ -113,10 +114,14 @@ ALTER TABLE dim_users
 ----------------------------------------------------------------------
 
 --Adding Foreign Keys to order_table
---Deleting card_number rows in order_tbale that does not exist in dim tables.
+--Adding card_number rows that exist in order_table but not in to dim_card_details table.
 
-DELETE FROM order_table
-	WHERE card_number NOT IN (SELECT card_number FROM dim_card_details);
+INSERT INTO dim_card_details (card_number)
+SELECT DISTINCT o.card_number
+FROM order_table o
+WHERE NOT EXISTS (
+    SELECT 1 FROM dim_card_details d WHERE o.card_number = d.card_number
+);
 
 ALTER TABLE order_table
 	ADD CONSTRAINT card_fk FOREIGN KEY (card_number)
@@ -130,9 +135,6 @@ ALTER TABLE order_table
 	ADD CONSTRAINT product_fk FOREIGN KEY (product_code)
 	REFERENCES dim_products(product_code);
 
-DELETE FROM order_table
-	WHERE store_code NOT IN (SELECT store_code FROM dim_store_details);
-
 ALTER TABLE order_table
 	ADD CONSTRAINT store_fk FOREIGN KEY (store_code)
 	REFERENCES dim_store_details(store_code);
@@ -141,11 +143,3 @@ ALTER TABLE order_table
 	ADD CONSTRAINT user_fk FOREIGN KEY (user_uuid)
 	REFERENCES dim_users(user_uuid);
 
-SELECT DISTINCT card_number 
-FROM order_table 
-WHERE card_number NOT IN (SELECT card_number FROM dim_card_details);
-
-
-SELECT column_name, data_type
-    FROM information_schema.columns
-	WHERE table_name = 'dim_date_times';
