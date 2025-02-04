@@ -28,6 +28,8 @@ class DataCleaning:
         stores_df = dtex.stores_df
         stores_df["opening_date"] = pd.to_datetime(stores_df["opening_date"], 
                                                    format='mixed', errors='coerce')
+        #To keep WEB store row, we have to manually remove None value in latitude column
+        stores_df.loc[stores_df['index'] == 0 , 'latitude'] = 'N/A'
         stores_df.replace(['NULL'], np.nan, inplace=True)
         stores_df['staff_numbers'] = stores_df['staff_numbers'].str.replace(r'[^0-9]', '', regex=True)
         stores_df= stores_df.drop(columns=['lat'])
@@ -89,9 +91,9 @@ class DataCleaning:
     def clean_events_data():
         events_df = dtex.events_df
         events_df.replace(['NULL'], np.nan, inplace=True)
-        events_df['day'] = pd.to_numeric(events_df['day'], errors='coerce')
-        events_df['month'] = pd.to_numeric(events_df['month'], errors='coerce')
-        events_df['year'] = pd.to_numeric(events_df['year'], errors='coerce')
+        events_df['day'] = pd.to_numeric(events_df['day'], errors='coerce', downcast='integer')
+        events_df['month'] = pd.to_numeric(events_df['month'], errors='coerce',downcast='integer')
+        events_df['year'] = pd.to_numeric(events_df['year'], errors='coerce', downcast='integer')
         events_df = events_df.dropna().reset_index(drop=True)
         return events_df
     
@@ -103,4 +105,5 @@ cleaned_products_data = DataCleaning.clean_products_data()
 cleaned_orders_data = DataCleaning.clean_orders_data()
 cleaned_events_data = DataCleaning.clean_events_data()
         
-
+if __name__ == '__main__':
+    print (DataCleaning.clean_card_data().info())
