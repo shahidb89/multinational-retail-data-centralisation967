@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 import data_extraction as dtex
+import os
 
 class DataCleaning:
     """
@@ -81,8 +82,9 @@ class DataCleaning:
         Returns:
             pd.DataFrame: Dataframe with converted weight values.
         """
+        current_folder = os.getcwd()
         products_df = dtex.DataExtractor.extract_from_s3('data-handling-public', 'products.csv', 
-                                                         '/Users/admin/AiCore/multinational-retail-data/products.csv')
+                                                         current_folder+'/products.csv')
         weights_list = list(products_df['weight'])
         gram_to_kg = 0.001
         oz_to_kg = 0.0283495
@@ -154,8 +156,9 @@ class DataCleaning:
         Returns:
             pd.DataFrame: Cleaned events data
         """
+        current_folder = os.getcwd()
         events_df = dtex.DataExtractor.extract_from_s3('data-handling-public', 'date_details.json', 
-                                                        '/Users/admin/AiCore/multinational-retail-data/date_details.json')
+                                                        current_folder+'/date_details.json')
         events_df.replace(['NULL'], np.nan, inplace=True)
         events_df['day'] = pd.to_numeric(events_df['day'], errors='coerce', downcast='integer')
         events_df['month'] = pd.to_numeric(events_df['month'], errors='coerce', downcast='integer')
@@ -167,4 +170,4 @@ class DataCleaning:
 
 
 if __name__ == '__main__':
-    print (DataCleaning.clean_events_data().info())
+    print (DataCleaning.clean_products_data().info())
