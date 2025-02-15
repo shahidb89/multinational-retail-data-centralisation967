@@ -1,12 +1,14 @@
-import database_utils as dbut
-import pandas as pd
+from botocore import UNSIGNED 
+from botocore.config import Config 
 from sqlalchemy import inspect
 from tabula import read_pdf
+import database_utils as dbut
+import endpoint_configs
+import pandas as pd
 import requests
 import boto3
 import botocore 
-from botocore import UNSIGNED 
-from botocore.config import Config 
+
 import os 
 
 class DataExtractor:
@@ -43,7 +45,7 @@ class DataExtractor:
         return df
 
     @staticmethod
-    def retrieve_pdf_data(link="https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"):
+    def retrieve_pdf_data(link=endpoint_configs.card_pdf_link):
         """
         Extracts tabular data from a PDF file using Tabula.
         
@@ -58,8 +60,8 @@ class DataExtractor:
         return combined_df
 
     @staticmethod
-    def list_number_of_stores(url='https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores',
-                              headers={'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}):   
+    def list_number_of_stores(url= endpoint_configs.number_of_stores_url,
+                              headers= endpoint_configs.number_of_stores_headers):   
         """
         Retrieves the total number of stores from an API endpoint.
         
@@ -83,8 +85,8 @@ class DataExtractor:
         Returns:
             pd.DataFrame: A DataFrame containing store details.
         """
-        headers = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
-        url = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/'
+        headers = endpoint_configs.stores_data_headers
+        url = endpoint_configs.stores_data_url
         number_of_stores = DataExtractor.list_number_of_stores()
         list_of_stores = []
     

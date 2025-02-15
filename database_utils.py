@@ -1,5 +1,5 @@
-import yaml
 from sqlalchemy import create_engine
+import yaml
 import psycopg2
 import pandas as pd
 

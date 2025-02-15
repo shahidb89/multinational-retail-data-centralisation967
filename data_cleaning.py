@@ -1,3 +1,4 @@
+import endpoint_configs
 import pandas as pd
 import numpy as np
 import re
@@ -9,6 +10,7 @@ class DataCleaning:
     A class containing methods for cleaning various datasets used in a retail business.
     """
 
+    @staticmethod
     def clean_user_data():
         """
         Cleans user data by:
@@ -27,6 +29,7 @@ class DataCleaning:
         user_df = user_df.dropna().reset_index(drop=True)
         return user_df
 
+    @staticmethod
     def clean_card_data():
         """
         Cleans card data by:
@@ -48,6 +51,7 @@ class DataCleaning:
         card_df = card_df.dropna().reset_index(drop=True)
         return card_df
     
+    @staticmethod
     def clean_store_data():
         """
         Cleans store data by:
@@ -72,6 +76,7 @@ class DataCleaning:
         stores_df.replace("", pd.NA, inplace=True)
         return stores_df
     
+    @staticmethod
     def convert_product_weights():
         """
         Converts product weights to a uniform unit (kilograms).
@@ -82,9 +87,8 @@ class DataCleaning:
         Returns:
             pd.DataFrame: Dataframe with converted weight values.
         """
-        current_folder = os.getcwd()
-        products_df = dtex.DataExtractor.extract_from_s3('data-handling-public', 'products.csv', 
-                                                         current_folder+'/products.csv')
+        
+        products_df = dtex.DataExtractor.extract_from_s3(*endpoint_configs.products_s3_list)
         weights_list = list(products_df['weight'])
         gram_to_kg = 0.001
         oz_to_kg = 0.0283495
@@ -119,6 +123,7 @@ class DataCleaning:
         products_df['weight'] = converted_weights
         return products_df
     
+    @staticmethod
     def clean_products_data():
         """
         Cleans product data by:
@@ -134,6 +139,7 @@ class DataCleaning:
         products_df = products_df.dropna().reset_index(drop=True)
         return products_df
     
+    @staticmethod
     def clean_orders_data():
         """
         Cleans orders data by:
@@ -146,6 +152,7 @@ class DataCleaning:
         orders_df = orders_df.drop(columns=['first_name', 'last_name', '1'])
         return orders_df
     
+    @staticmethod
     def clean_events_data():
         """
         Cleans events data by:
@@ -156,9 +163,7 @@ class DataCleaning:
         Returns:
             pd.DataFrame: Cleaned events data
         """
-        current_folder = os.getcwd()
-        events_df = dtex.DataExtractor.extract_from_s3('data-handling-public', 'date_details.json', 
-                                                        current_folder+'/date_details.json')
+        events_df = dtex.DataExtractor.extract_from_s3(*endpoint_configs.events_s3_list)
         events_df.replace(['NULL'], np.nan, inplace=True)
         events_df['day'] = pd.to_numeric(events_df['day'], errors='coerce', downcast='integer')
         events_df['month'] = pd.to_numeric(events_df['month'], errors='coerce', downcast='integer')
@@ -170,4 +175,9 @@ class DataCleaning:
 
 
 if __name__ == '__main__':
-    print (DataCleaning.clean_products_data().info())
+    print (DataCleaning.clean_user_data().info(),
+           DataCleaning.clean_store_data().info(),
+           DataCleaning.clean_card_data().info(),
+           DataCleaning.clean_orders_data().info(),
+           DataCleaning.clean_products_data().info(),
+           DataCleaning.clean_events_data().info())
