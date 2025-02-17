@@ -39,9 +39,12 @@ class DatabaseConnector:
         PORT = db_cred_dict['RDS_PORT']
         DATABASE = db_cred_dict['RDS_DATABASE']
         
-        # Create database engine
-        engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
-        engine.connect()
+        try:
+            # Create database engine
+            engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
+            engine.connect()
+        except Exception as e:
+                print("Error:", e)
         return engine
     
     @staticmethod
@@ -75,8 +78,11 @@ class DatabaseConnector:
         DATABASE = db_cred_dict['DATABASE']
         PORT = db_cred_dict['PORT']
         
-        # Create database engine
-        engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}")
+        try:
+            # Create database engine
+            engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}")
+        except Exception as e:
+            print("Error:", e)
         return engine
     
     @staticmethod
@@ -101,13 +107,16 @@ class DatabaseConnector:
             psycopg2.extensions.connection: A PostgreSQL database connection.
         """
         db_creds_dict = DatabaseConnector.write_db_creds()
-        conn = psycopg2.connect(
-            dbname=db_creds_dict['DATABASE'],
-            user=db_creds_dict['USER'],
-            password=db_creds_dict['PASSWORD'],
-            host=db_creds_dict['HOST'],
-            port=db_creds_dict['PORT']
-        )  
+        try:
+            conn = psycopg2.connect(
+                dbname=db_creds_dict['DATABASE'],
+                user=db_creds_dict['USER'],
+                password=db_creds_dict['PASSWORD'],
+                host=db_creds_dict['HOST'],
+                port=db_creds_dict['PORT']
+            )
+        except Exception as e:
+                print("Error:", e)  
         return conn 
     
     @staticmethod

@@ -55,8 +55,11 @@ class DataExtractor:
         Returns:
             pd.DataFrame: A concatenated DataFrame containing all tables from the PDF.
         """
-        dfs = read_pdf(link, pages="all", multiple_tables=True)
-        combined_df = pd.concat(dfs, ignore_index=True)
+        try:
+            dfs = read_pdf(link, pages="all", multiple_tables=True)
+            combined_df = pd.concat(dfs, ignore_index=True)
+        except Exception as e:
+                print("Error:", e)
         return combined_df
 
     @staticmethod
@@ -72,9 +75,12 @@ class DataExtractor:
         Returns:
             int: The number of stores.
         """
-        response = requests.get(url, headers=headers)
-        stores = response.json()
-        number_of_stores = stores['number_stores']
+        try:
+            response = requests.get(url, headers=headers)
+            stores = response.json()
+            number_of_stores = stores['number_stores']
+        except Exception as e:
+                print("Error:", e)
         return number_of_stores
     
     @staticmethod
@@ -85,20 +91,23 @@ class DataExtractor:
         Returns:
             pd.DataFrame: A DataFrame containing store details.
         """
-        headers = endpoint_configs.stores_data_headers
-        url = endpoint_configs.stores_data_url
-        number_of_stores = DataExtractor.list_number_of_stores()
-        list_of_stores = []
-    
-        # Loop through all store IDs and fetch their details
-        for i in range(number_of_stores):
-            store_url = url + str(i)
-            response = requests.get(store_url, headers=headers)
-            if response.status_code == 200:
-                store = response.json()
-                list_of_stores.append(store)
+        try:
+            headers = endpoint_configs.stores_data_headers
+            url = endpoint_configs.stores_data_url
+            number_of_stores = DataExtractor.list_number_of_stores()
+            list_of_stores = []
         
-        stores_df = pd.DataFrame(list_of_stores, index=None)
+            # Loop through all store IDs and fetch their details
+            for i in range(number_of_stores):
+                store_url = url + str(i)
+                response = requests.get(store_url, headers=headers)
+                if response.status_code == 200:
+                    store = response.json()
+                    list_of_stores.append(store)
+            
+            stores_df = pd.DataFrame(list_of_stores, index=None)
+        except Exception as e:
+                print("Error:", e)
         return stores_df
 
     @staticmethod
@@ -117,8 +126,11 @@ class DataExtractor:
         Raises:
             ValueError: If the file type is unsupported.
         """
-        s3 = boto3.client('s3', config=Config(signature_version=UNSIGNED))
-        s3.download_file(bucket_name, object_key, local_file_path)
+        try:
+            s3 = boto3.client('s3', config=Config(signature_version=UNSIGNED))
+            s3.download_file(bucket_name, object_key, local_file_path)
+        except Exception as e:
+                print("Error:", e)
         
         # Determine file type and read accordingly
         file_extension = os.path.splitext(local_file_path)[1].lower()
